@@ -1,0 +1,615 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--sidebar:210px;--header:52px}
+.app{display:flex;height:600px;font-family:var(--font-sans);overflow:hidden;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg)}
+.sidebar{width:var(--sidebar);flex-shrink:0;border-right:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;overflow:hidden;background:var(--color-background-secondary)}
+.sb-brand{padding:16px 16px 12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.sb-brand-name{font-size:15px;font-weight:500}
+.sb-brand-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sb-section{font-size:10px;font-weight:500;color:var(--color-text-secondary);padding:12px 16px 4px;letter-spacing:.06em;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:var(--color-text-secondary);cursor:pointer;border-radius:0;transition:background .1s}
+.sb-item:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
+.sb-item.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500}
+.sb-item i{font-size:15px;flex-shrink:0}
+.sb-footer{padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary)}
+.sb-prog-lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:5px}
+.sb-prog-bar{height:4px;background:var(--color-border-tertiary);border-radius:4px;overflow:hidden}
+.sb-prog-fill{height:4px;background:#1d9e75;border-radius:4px;transition:width .4s}
+.sb-prog-pct{font-size:11px;color:var(--color-text-secondary);margin-top:4px}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--color-background-primary)}
+.topbar{height:var(--header);display:flex;align-items:center;padding:0 20px;border-bottom:0.5px solid var(--color-border-tertiary);gap:12px;flex-shrink:0}
+.topbar h1{font-size:15px;font-weight:500;flex:1}
+.topbar-btn{padding:5px 12px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);cursor:pointer}
+.topbar-btn:hover{background:var(--color-background-secondary)}
+.content{flex:1;overflow-y:auto;padding:20px}
+
+.screen{display:none}.screen.active{display:block}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px}
+.stat-n{font-size:22px;font-weight:500}
+.stat-n.blue{color:#185fa5}.stat-n.green{color:#0f6e56}.stat-n.purple{color:#534ab7}
+.stat-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:3px}
+
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:14px;font-weight:500}
+.see-all{font-size:12px;color:var(--color-text-secondary);cursor:pointer;border:none;background:none;padding:4px 8px;border-radius:var(--border-radius-md)}
+.see-all:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+
+.act-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.act-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .15s}
+.act-card:hover{border-color:var(--color-border-primary);background:var(--color-background-secondary)}
+.act-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.act-icon.blue{background:#e6f1fb;color:#185fa5}
+.act-icon.green{background:#eaf3de;color:#3b6d11}
+.act-icon.purple{background:#eeedfe;color:#534ab7}
+.act-icon.amber{background:#faeeda;color:#854f0b}
+.act-name{font-size:13px;font-weight:500;text-align:center}
+.act-desc{font-size:11px;color:var(--color-text-secondary);text-align:center}
+
+.book-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.book-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;cursor:pointer;transition:border-color .15s}
+.book-card:hover{border-color:var(--color-border-primary)}
+.book-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px}
+.book-name{font-size:13px;font-weight:500;line-height:1.3;margin-bottom:4px}
+.book-meta{font-size:11px;color:var(--color-text-secondary);margin-bottom:8px}
+.book-bar{height:3px;background:var(--color-border-tertiary);border-radius:3px;overflow:hidden}
+.book-fill{height:3px;border-radius:3px;background:#1d9e75;transition:width .4s}
+
+.filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.pill{padding:5px 12px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:20px;cursor:pointer;background:transparent;color:var(--color-text-secondary)}
+.pill.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.pill:hover:not(.active){background:var(--color-background-secondary);color:var(--color-text-primary)}
+
+.word-table{display:flex;flex-direction:column;gap:4px}
+.wrow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:border-color .15s}
+.wrow:hover{border-color:var(--color-border-primary)}
+.wrow .wword{font-weight:500;font-size:14px;width:150px;flex-shrink:0}
+.wrow .wdef{font-size:13px;color:var(--color-text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wrow .wtag{font-size:10px;padding:2px 6px;border-radius:12px;flex-shrink:0;font-weight:500}
+.wtag.t1{background:#e1f5ee;color:#0f6e56}.wtag.t2{background:#e6f1fb;color:#185fa5}
+.wtag.t3{background:#faeeda;color:#854f0b}.wtag.t4{background:#fbeaf0;color:#993556}
+.wtag.known{background:#eaf3de;color:#3b6d11}.wtag.learning{background:#faeeda;color:#854f0b}.wtag.new{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+
+.fc-wrap{display:flex;flex-direction:column;gap:14px;align-items:center}
+.fc-card{width:100%;min-height:180px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;text-align:center}
+.fc-card:hover{border-color:var(--color-border-primary)}
+.fc-word{font-size:30px;font-weight:500}
+.fc-hint{font-size:13px;color:var(--color-text-secondary);margin-top:6px}
+.fc-def{font-size:15px;line-height:1.6}
+.fc-sub{font-size:12px;color:var(--color-text-secondary);margin-top:8px}
+.fc-btns{display:flex;gap:8px}
+.fcb{padding:8px 18px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:none}
+.fcb.red{background:#fcebeb;color:#a32d2d}.fcb.amber{background:#faeeda;color:#854f0b}.fcb.green{background:#eaf3de;color:#3b6d11}
+.fcb:hover{opacity:.85}
+.fc-nav{display:flex;gap:8px;align-items:center}
+.fc-nav button{padding:6px 14px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);cursor:pointer}
+.fc-nav button:hover{background:var(--color-background-secondary)}
+.fc-nav button:disabled{opacity:.3;cursor:not-allowed}
+.fc-prog{font-size:12px;color:var(--color-text-secondary)}
+
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
+.match-col{display:flex;flex-direction:column;gap:6px}
+.match-item{padding:10px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;transition:all .15s}
+.match-item:hover:not(.matched):not(.wrong){border-color:var(--color-border-primary);background:var(--color-background-secondary)}
+.match-item.selected{border-color:#185fa5;background:#e6f1fb;color:#185fa5}
+.match-item.matched{border-color:#0f6e56;background:#e1f5ee;color:#0f6e56;cursor:default}
+.match-item.wrong{border-color:#a32d2d;background:#fcebeb;color:#a32d2d}
+
+.q-wrap{max-width:520px}
+.q-text{font-size:16px;font-weight:500;margin-bottom:16px;line-height:1.5}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.qopt{padding:12px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;text-align:left;background:transparent;color:var(--color-text-primary);line-height:1.4}
+.qopt:hover:not(:disabled){border-color:var(--color-border-primary);background:var(--color-background-secondary)}
+.qopt.correct{background:#eaf3de;border-color:#0f6e56;color:#0f6e56}
+.qopt.wrong{background:#fcebeb;border-color:#a32d2d;color:#a32d2d}
+.q-bar{height:3px;background:var(--color-border-tertiary);border-radius:3px;margin-bottom:14px;overflow:hidden}
+.q-bar-fill{height:3px;background:#185fa5;border-radius:3px;transition:width .3s}
+.q-meta{font-size:12px;color:var(--color-text-secondary);margin-bottom:12px}
+
+.type-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px 20px 16px;margin-bottom:12px}
+.type-def{font-size:15px;margin-bottom:14px;line-height:1.6;color:var(--color-text-primary)}
+.type-input{width:100%;padding:9px 12px;font-size:15px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+.type-input:focus{outline:none;border-color:var(--color-text-primary)}
+.type-input.correct{border-color:#0f6e56;background:#eaf3de;color:#0f6e56}
+.type-input.wrong{border-color:#a32d2d;background:#fcebeb;color:#a32d2d}
+.type-hint{font-size:12px;color:var(--color-text-secondary);margin-top:6px}
+
+.result-box{text-align:center;padding:24px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:14px}
+.result-score{font-size:44px;font-weight:500;margin-bottom:4px}
+.result-sub{font-size:14px;color:var(--color-text-secondary)}
+.missed-sec{font-size:13px;font-weight:500;margin-bottom:8px}
+
+.empty{text-align:center;padding:40px;color:var(--color-text-secondary);font-size:14px}
+.pb{margin-bottom:12px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.sbtn{padding:7px 16px;font-size:13px;font-weight:500;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);cursor:pointer}
+.sbtn:hover{background:var(--color-background-secondary)}
+.sbtn.primary{background:var(--color-text-primary);color:var(--color-background-primary);border-color:transparent}
+.sbtn.primary:hover{opacity:.85}
+</style>
+
+<div class="app">
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-name">VocabBook</div>
+    <div class="sb-brand-sub">Cambridge IELTS 16 · 4 bài test</div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Tổng quan</div>
+    <div class="sb-item active" onclick="go('home',this)"><i class="ti ti-home" aria-hidden="true"></i> Trang chủ</div>
+    <div class="sb-item" onclick="go('books',this)"><i class="ti ti-books" aria-hidden="true"></i> Sách của tôi</div>
+    <div class="sb-item" onclick="go('report',this)"><i class="ti ti-chart-bar" aria-hidden="true"></i> Báo cáo</div>
+    <div class="sb-section">Hoạt động</div>
+    <div class="sb-item" onclick="go('flashcard',this)"><i class="ti ti-cards" aria-hidden="true"></i> Flashcard</div>
+    <div class="sb-item" onclick="go('match',this)"><i class="ti ti-arrows-shuffle" aria-hidden="true"></i> Ghép đôi</div>
+    <div class="sb-item" onclick="go('quiz',this)"><i class="ti ti-brain" aria-hidden="true"></i> Trắc nghiệm</div>
+    <div class="sb-item" onclick="go('typing',this)"><i class="ti ti-keyboard" aria-hidden="true"></i> Điền từ</div>
+    <div class="sb-section">Kiểm tra</div>
+    <div class="sb-item" onclick="go('exam',this)"><i class="ti ti-file-check" aria-hidden="true"></i> Bài kiểm tra</div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-prog-lbl" id="sbProgLbl">0 / 0 từ đã thuộc</div>
+    <div class="sb-prog-bar"><div class="sb-prog-fill" id="sbProgFill" style="width:0%"></div></div>
+    <div class="sb-prog-pct" id="sbProgPct">0%</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1 id="pageTitle">Trang chủ</h1>
+    <button class="topbar-btn" onclick="go('books',document.querySelector('.sb-item:nth-child(2)'))">Xem tất cả sách</button>
+    <button class="topbar-btn" onclick="resetAll()">Reset</button>
+  </div>
+  <div class="content">
+
+  <div id="s-home" class="screen active">
+    <div class="stat-row" id="homeStats"></div>
+    <div class="section-hd"><span class="section-title">Hoạt động học</span></div>
+    <div class="act-grid">
+      <div class="act-card" onclick="go('flashcard',getSbItem('flashcard'))">
+        <div class="act-icon blue"><i class="ti ti-cards" aria-hidden="true"></i></div>
+        <div class="act-name">Flashcard</div>
+        <div class="act-desc">Lật thẻ ghi nhớ</div>
+      </div>
+      <div class="act-card" onclick="go('match',getSbItem('match'))">
+        <div class="act-icon green"><i class="ti ti-arrows-shuffle" aria-hidden="true"></i></div>
+        <div class="act-name">Ghép đôi</div>
+        <div class="act-desc">Nối từ và nghĩa</div>
+      </div>
+      <div class="act-card" onclick="go('quiz',getSbItem('quiz'))">
+        <div class="act-icon purple"><i class="ti ti-brain" aria-hidden="true"></i></div>
+        <div class="act-name">Trắc nghiệm</div>
+        <div class="act-desc">4 lựa chọn</div>
+      </div>
+      <div class="act-card" onclick="go('typing',getSbItem('typing'))">
+        <div class="act-icon amber"><i class="ti ti-keyboard" aria-hidden="true"></i></div>
+        <div class="act-name">Điền từ</div>
+        <div class="act-desc">Gõ đáp án</div>
+      </div>
+    </div>
+    <div class="section-hd">
+      <span class="section-title">Sách đang học</span>
+      <button class="see-all" onclick="go('books',getSbItem('books'))">Xem tất cả</button>
+    </div>
+    <div class="book-grid" id="homeBooks"></div>
+  </div>
+
+  <div id="s-books" class="screen">
+    <div class="filter-row" id="bookFilters"></div>
+    <div class="book-grid" id="allBooks"></div>
+  </div>
+
+  <div id="s-report" class="screen">
+    <div class="stat-row" id="reportStats"></div>
+    <div style="margin-bottom:16px">
+      <div class="section-title pb">Tiến độ theo bài test</div>
+      <div id="reportByTest"></div>
+    </div>
+    <div>
+      <div class="section-title pb">Từ cần ôn lại</div>
+      <div class="word-table" id="reportLearning"></div>
+    </div>
+  </div>
+
+  <div id="s-flashcard" class="screen">
+    <div class="filter-row" id="fcFilters"></div>
+    <div id="fcArea"></div>
+  </div>
+
+  <div id="s-match" class="screen">
+    <div class="filter-row" id="matchFilters"></div>
+    <div id="matchArea"></div>
+  </div>
+
+  <div id="s-quiz" class="screen">
+    <div class="filter-row" id="qzFilters"></div>
+    <div id="qzArea"></div>
+  </div>
+
+  <div id="s-typing" class="screen">
+    <div class="filter-row" id="tyFilters"></div>
+    <div id="tyArea"></div>
+  </div>
+
+  <div id="s-exam" class="screen">
+    <div class="filter-row" id="exFilters"></div>
+    <div id="exArea"></div>
+  </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const PASSAGES=[
+  {id:'t1p1',test:1,name:'Why We Need To Protect Polar Bears',icon:'🐻‍❄️',color:'#e1f5ee'},
+  {id:'t1p2',test:1,name:'The Step Pyramid Of Djoser',icon:'🏛️',color:'#e6f1fb'},
+  {id:'t1p3',test:1,name:'The Future of Work',icon:'🤖',color:'#eeedfe'},
+  {id:'t2p1',test:2,name:'The White Horse of Uffington',icon:'🐎',color:'#faeeda'},
+  {id:'t2p2',test:2,name:'I Contain Multitudes',icon:'🦠',color:'#fbeaf0'},
+  {id:'t2p3',test:2,name:'How To Make Wise Decisions',icon:'🌿',color:'#eaf3de'},
+  {id:'t3p1',test:3,name:'Roman Shipbuilding and Navigation',icon:'⛵',color:'#e6f1fb'},
+  {id:'t3p2',test:3,name:'Climate Change & Norway\'s Glaciers',icon:'🧊',color:'#e1f5ee'},
+  {id:'t3p3',test:3,name:'Plant Thermometer & Springtime Growth',icon:'🌱',color:'#eaf3de'},
+  {id:'t4p1',test:4,name:'Roman Tunnels',icon:'🏗️',color:'#faeeda'},
+  {id:'t4p2',test:4,name:'Changes In Reading Habits',icon:'📚',color:'#eeedfe'},
+  {id:'t4p3',test:4,name:'Attitudes Towards AI',icon:'🧠',color:'#fbeaf0'},
+];
+
+const RAW=[
+["polar","close to or relating to the North or South Pole","t1p1"],["threaten","to be likely to harm or destroy something","t1p1"],["climate","the typical weather conditions in a particular area","t1p1"],["far-reaching","having a great influence or effect","t1p1"],["consequence","result, effect, outcome","t1p1"],["uniquely","in a way that is different from anything or anyone else","t1p1"],["adapt","to gradually change your behaviour to succeed in a new situation","t1p1"],["comparative","relative, proportional","t1p1"],["adipose","relating to animal fat","t1p1"],["obese","very fat in a way that is unhealthy","t1p1"],["diabetes","a serious disease with too much sugar in your blood","t1p1"],["colleague","coworker, partner, teammate, associate","t1p1"],["shed light on","to make something easier to understand","t1p1"],["genetic","relating to genes or genetics","t1p1"],["density","the degree to which an area is filled with people or things","t1p1"],["mutation","change, alteration, transformation, modification","t1p1"],["genome","all the genes in one type of living thing","t1p1"],["osteoporosis","a disease where bones show reduced density","t1p1"],["insufficient","not enough, lacking, inadequate, deficient","t1p1"],["starvation","hunger, food shortage, famine","t1p1"],["nutrient","a chemical or food providing what plants/animals need to live","t1p1"],["undergo","experience, feel, suffer, go through","t1p1"],["deplete","to reduce the amount of something available","t1p1"],["paradox","a situation involving two very different ideas","t1p1"],["hibernate","if an animal hibernates, it sleeps for the whole winter","t1p1"],["mechanism","a system helping a living thing avoid danger","t1p1"],["conservation","protection of natural things to prevent them being spoiled","t1p1"],["perceive","see, understand, identify, recognize","t1p1"],["anecdotal","based on personal experience rather than facts","t1p1"],["deliberate","purposeful, conscious, intentional, planned","t1p1"],["creativity","imagination, originality, inventiveness","t1p1"],["extinction","when a type of animal or plant stops existing","t1p1"],["breakthrough","an important new discovery after trying for a long time","t1p1"],
+["pyramid","a large stone building with four triangular walls sloping to a point","t1p2"],["monument","a structure built to remind people of an important event","t1p2"],["ancient","early, antique, olden","t1p2"],["enormous","huge, vast, giant","t1p2"],["impressive","something that makes you admire it","t1p2"],["evolution","development, growth, progression, advancement","t1p2"],["reign","the period when someone is king or queen","t1p2"],["tomb","a stone structure where a dead person is buried","t1p2"],["deceased","dead","t1p2"],["conceive","think of, consider, perceive","t1p2"],["progressively","increasingly, gradually","t1p2"],["intricate","complicated, complex, sophisticated, tricky","t1p2"],["accomplishment","something successful achieved after much effort","t1p2"],["archaeologist","someone who studies ancient societies by examining their remains","t1p2"],["excavate","to dig carefully to find ancient objects","t1p2"],["predecessor","someone who had your job before you","t1p2"],["milestone","a very important event in the development of something","t1p2"],["revolutionary","completely new and different, leading to great improvements","t1p2"],
+["workforce","all the people who work in a particular industry or country","t1p3"],["occupation","job, work, career, profession","t1p3"],["automation","the use of computers/machines instead of people to do a job","t1p3"],["algorithm","a set of instructions followed in order for solving a problem","t1p3"],["fundamental","important, central, essential, vital","t1p3"],["enhance","improve, increase, boost","t1p3"],["cognitive","related to knowing, understanding, and learning","t1p3"],["novice","beginner, learner, trainee, apprentice","t1p3"],["instinct","a natural tendency to behave in a particular way","t1p3"],["dilemma","a situation where it is very difficult to decide what to do","t1p3"],["expertise","special skills or knowledge learned by experience","t1p3"],["transition","when something changes from one form to another","t1p3"],["trajectory","events that happen during a period, leading to a result","t1p3"],["fallacy","a false idea that many people think is true","t1p3"],["redundancy","when someone loses their job because they are no longer needed","t1p3"],["astounding","amazing, surprising, shocking","t1p3"],["subsistence","only just having enough food or money to stay alive","t1p3"],
+["geoglyph","a large-scale image produced in the natural landscape","t2p1"],["controversial","causing a lot of disagreement because of strong opinions","t2p1"],["enigmatic","mysterious and difficult to understand","t2p1"],["gleaming","bright and shiny from being cleaned","t2p1"],["continuity","the state of continuing without interruptions or changes","t2p1"],["stylized","drawn in an artificial style that is pleasant to look at","t2p1"],["elegant","beautiful, attractive, or graceful","t2p1"],["carving","the activity or skill of carving something","t2p1"],["depiction","description, representation, portrayal","t2p1"],["tribal","relating to a tribe or tribes","t2p1"],["emblem","symbol, logo, sign, badge","t2p1"],["significance","importance, impact","t2p1"],["mythology","set of ancient myths","t2p1"],["gesture","a movement showing what you mean or how you feel","t2p1"],
+["bacteria","very small living things, some of which cause illness","t2p2"],["ubiquitous","seeming to be everywhere","t2p2"],["inhabit","live, dwell, occupy, populate","t2p2"],["species","a group of animals or plants whose members can breed together","t2p2"],["microbe","an extremely small living thing seen only with a microscope","t2p2"],["peril","danger, threat, risk","t2p2"],["symbiotic","a relationship where the things involved depend on each other","t2p2"],["immune","someone who cannot catch a particular disease","t2p2"],["eliminate","remove, eradicate, abolish, exclude, reduce","t2p2"],["toxin","a poisonous substance produced by bacteria","t2p2"],["obsession","an extreme unhealthy interest stopping you thinking of anything else","t2p2"],["hygiene","the practice of keeping yourself clean to prevent diseases","t2p2"],["antibiotic","a drug used to kill bacteria and cure infections","t2p2"],["disrupt","interrupt, upset, disturb","t2p2"],["predator","an animal that kills and eats other animals","t2p2"],["neonatal","relating to babies that have just been born","t2p2"],
+["wisdom","understanding, knowledge, sense","t2p3"],["revered","respected, admired, valued","t2p3"],["empirical","experiential, experimental, observed","t2p3"],["exceptional","unusually good, outstanding","t2p3"],["humility","modesty, shyness, unpretentiousness","t2p3"],["perspective","view, viewpoint, outlook","t2p3"],["compromise","cooperation, negotiation, concession","t2p3"],["sensitivity","sympathy, understanding, kindliness","t2p3"],["impartial","neutral, fair, unbiased, objective","t2p3"],["foster","promote, further, advance, cultivate","t2p3"],["egocentric","thinking only about yourself without regard for others","t2p3"],["agreeableness","friendliness, kindness, sociability, pleasantness","t2p3"],["retaliate","react, hit back, strike back, get revenge","t2p3"],
+["sophisticated","complex, complicated, difficult","t3p1"],["technique","method, way, means","t3p1"],["hull","the main part of a ship that goes in the water","t3p1"],["merchant","seller, trader, tradesperson","t3p1"],["ballast","heavy material carried by a ship to make it steady","t3p1"],["dominant","more powerful or important than others","t3p1"],["cargo","load, freight, consignment, shipment","t3p1"],["stability","constancy, steadiness, firmness, solidity","t3p1"],["navigation","steering, direction finding, routing","t3p1"],["facilitate","help, aid, assist, make easy","t3p1"],["mariner","a sailor","t3p1"],["resemble","look like, bear a resemblance to, be similar to","t3p1"],
+["artefact","an object from archaeological sites","t3p2"],["insight","vision, understanding, awareness, perception","t3p2"],["fragile","easily broken or damaged","t3p2"],["unpredictable","random, erratic, changeable, impulsive, volatile","t3p2"],["systematic","organized carefully and done thoroughly","t3p2"],["congregate","to come together in a group","t3p2"],["permafrost","a layer of soil that is always frozen in very cold countries","t3p2"],["rewarding","satisfying, worthwhile, gratifying, fulfilling","t3p2"],["discard","to get rid of something","t3p2"],["traverse","cross, pass over, get over","t3p2"],["daunting","deterring, discouraging, scaring, frightening","t3p2"],["supplement","addition, extra, complement, enhancement","t3p2"],["disintegrate","to break up into very small pieces","t3p2"],
+["phytochrome","a protein in plants playing a role in developmental processes","t3p3"],["cellular","relating to the cells of plants or animals","t3p3"],["gauge","an instrument for measuring the size or amount of something","t3p3"],["seasonal","periodic, cyclic, regular, recurrent","t3p3"],["stimulate","excite, inspire, motivate, encourage, arouse","t3p3"],["pinpoint","identify, locate, find","t3p3"],["trigger","activate, cause, start, initiate","t3p3"],["breed","have babies, reproduce, procreate","t3p3"],["resilient","hardy, strong, tough, robust, resistant","t3p3"],["gradually","slowly, steadily, in stages","t3p3"],["revert","to change back to a situation that existed in the past","t3p3"],["suppress","overpower, overwhelm, conquer, defeat","t3p3"],["culmination","something important at the end of a long period of effort","t3p3"],
+["civilization","people, society, nation, culture","t4p1"],["reliable","dependable, consistent, steadfast, unfailing","t4p1"],["vertical","perpendicular, upright, erect, straight up","t4p1"],["ventilate","air, air out, freshen, circulate air","t4p1"],["canal","a long passage filled with water for boats to travel along","t4p1"],["alternative","other, another, substitute, alternate","t4p1"],["deviate","to change so you are not following an expected path","t4p1"],["inscription","writing, caption, engraving","t4p1"],["obstacle","problem, difficulty, hindrance","t4p1"],["mineral","a substance formed naturally in the earth, such as coal or gold","t4p1"],["extraction","removal, withdrawal, abstraction, taking out","t4p1"],["straightforward","simple and easy to understand","t4p1"],["patron","someone who supports activities by giving money","t4p1"],["divert","redirect, deflect, reroute, switch","t4p1"],
+["transformation","change, alteration, mutation, modification","t4p2"],["neuronal","relating to a nerve cell or a neuron","t4p2"],["literacy","the state of being able to read and write","t4p2"],["necessitate","require, demand, need, dictate","t4p2"],["reasoning","analysis, logic, calculation, thought","t4p2"],["inference","implication, interpretation, suggestion","t4p2"],["empathy","understanding, sympathy, compassion, responsiveness","t4p2"],["diminish","reduce, lessen, weaken, moderate","t4p2"],["allocate","assign, allot, apportion, distribute, share","t4p2"],["comprehend","understand, know, grasp","t4p2"],["atrophy","weaken, shrivel, degenerate, deteriorate","t4p2"],["susceptible","prone, disposed, vulnerable, at risk","t4p2"],["entrenched","fixed, rooted, engrained, ingrained","t4p2"],
+["predict","forecast, foresee, envisage, expect","t4p3"],["reluctant","unwilling, unenthusiastic, disinclined, hesitant","t4p3"],["contradict","deny, reverse, oppose, challenge","t4p3"],["competent","capable, able, knowledgeable, experienced","t4p3"],["plausible","reasonable, believable, credible, probable","t4p3"],["suspicion","doubt, misgiving, thought, distrust","t4p3"],["outlandish","unusual, bizarre, strange, weird","t4p3"],["reliability","dependability, consistency, steadfastness, trustworthiness","t4p3"],["unfamiliar","new, untried, unknown, strange, alien","t4p3"],["transparency","openness, clearness, unmistakability","t4p3"],["surveillance","observation, watch, scrutiny","t4p3"],["disproportionate","uneven, unequal, inconsistent, unbalanced","t4p3"],
+];
+
+const VOCAB=RAW.map((r,i)=>({id:i,word:r[0],def:r[1],pid:r[2]}));
+function pOf(pid){return PASSAGES.find(p=>p.id===pid)||PASSAGES[0];}
+function testOf(pid){return parseInt(pid[1]);}
+let prog={};
+function load(){try{const s=localStorage.getItem('vb16v2');if(s)prog=JSON.parse(s);}catch(e){prog={};}}
+function save(){try{localStorage.setItem('vb16v2',JSON.stringify(prog));}catch(e){}updateSidebar();}
+function getSt(id){return prog[id]||'new';}
+function setSt(id,s){prog[id]=s;save();}
+function resetAll(){if(confirm('Reset tất cả tiến độ?')){prog={};save();renderHome();}}
+
+function updateSidebar(){
+  const known=VOCAB.filter(v=>getSt(v.id)==='known').length;
+  const pct=Math.round(known/VOCAB.length*100);
+  document.getElementById('sbProgLbl').textContent=`${known} / ${VOCAB.length} từ đã thuộc`;
+  document.getElementById('sbProgFill').style.width=pct+'%';
+  document.getElementById('sbProgPct').textContent=pct+'%';
+}
+
+function getSbItem(id){
+  return Array.from(document.querySelectorAll('.sb-item')).find(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+id+"'"));
+}
+
+const TITLES={home:'Trang chủ',books:'Sách của tôi',report:'Báo cáo',flashcard:'Flashcard',match:'Ghép đôi',quiz:'Trắc nghiệm',typing:'Điền từ',exam:'Bài kiểm tra'};
+function go(id,el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('pageTitle').textContent=TITLES[id]||id;
+  const renders={home:renderHome,books:renderBooks,report:renderReport,flashcard:()=>renderFC(),match:()=>renderMatch(),quiz:()=>renderQz(),typing:()=>renderTy(),exam:()=>renderEx()};
+  if(renders[id]) renders[id]();
+}
+
+function statsHtml(total,known,learning,neww){
+  const pct=total?Math.round(known/total*100):0;
+  return `<div class="stat-card"><div class="stat-n blue">${total}</div><div class="stat-lbl">Tổng số từ</div></div>
+    <div class="stat-card"><div class="stat-n green">${known}</div><div class="stat-lbl">Từ đã thuộc</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:#854f0b">${learning}</div><div class="stat-lbl">Đang học</div></div>
+    <div class="stat-card"><div class="stat-n purple">${pct}%</div><div class="stat-lbl">Hoàn thành</div></div>`;
+}
+
+function bookCardHtml(p,compact){
+  const words=VOCAB.filter(v=>v.pid===p.id);
+  const known=words.filter(v=>getSt(v.id)==='known').length;
+  const pct=words.length?Math.round(known/words.length*100):0;
+  return `<div class="book-card" onclick="openBook('${p.id}')">
+    <div class="book-icon" style="background:${p.color}">${p.icon}</div>
+    <div class="book-name">CAM 16 – Test ${p.test} – ${p.name}</div>
+    <div class="book-meta">${words.length} từ · ${known} đã thuộc</div>
+    <div class="book-bar"><div class="book-fill" style="width:${pct}%"></div></div>
+  </div>`;
+}
+
+function renderHome(){
+  const known=VOCAB.filter(v=>getSt(v.id)==='known').length;
+  const learning=VOCAB.filter(v=>getSt(v.id)==='learning').length;
+  const neww=VOCAB.filter(v=>getSt(v.id)==='new').length;
+  document.getElementById('homeStats').innerHTML=statsHtml(VOCAB.length,known,learning,neww);
+  document.getElementById('homeBooks').innerHTML=PASSAGES.slice(0,6).map(p=>bookCardHtml(p)).join('');
+}
+
+let booksFilter=0;
+function renderBooks(){
+  const filters=document.getElementById('bookFilters');
+  filters.innerHTML=`<button class="pill ${booksFilter===0?'active':''}" onclick="setBF(0)">Tất cả</button>`+
+    [1,2,3,4].map(t=>`<button class="pill ${booksFilter===t?'active':''}" onclick="setBF(${t})">Test ${t}</button>`).join('');
+  const list=booksFilter?PASSAGES.filter(p=>p.test===booksFilter):PASSAGES;
+  document.getElementById('allBooks').innerHTML=list.map(p=>bookCardHtml(p)).join('');
+}
+function setBF(t){booksFilter=t;renderBooks();}
+
+function openBook(pid){
+  go('flashcard',getSbItem('flashcard'));
+  currentPid=pid;renderFC();
+}
+
+function renderReport(){
+  const known=VOCAB.filter(v=>getSt(v.id)==='known').length;
+  const learning=VOCAB.filter(v=>getSt(v.id)==='learning').length;
+  const neww=VOCAB.filter(v=>getSt(v.id)==='new').length;
+  document.getElementById('reportStats').innerHTML=statsHtml(VOCAB.length,known,learning,neww);
+  let byTest='';
+  [1,2,3,4].forEach(t=>{
+    const words=VOCAB.filter(v=>testOf(v.pid)===t);
+    const k=words.filter(v=>getSt(v.id)==='known').length;
+    const pct=words.length?Math.round(k/words.length*100):0;
+    byTest+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:13px;width:60px;color:var(--color-text-secondary)">Test ${t}</span>
+      <div style="flex:1;height:6px;background:var(--color-border-tertiary);border-radius:4px;overflow:hidden">
+        <div style="height:6px;background:#1d9e75;border-radius:4px;width:${pct}%"></div></div>
+      <span style="font-size:12px;color:var(--color-text-secondary);width:80px;text-align:right">${k}/${words.length} (${pct}%)</span>
+    </div>`;
+  });
+  document.getElementById('reportByTest').innerHTML=byTest;
+  const lw=VOCAB.filter(v=>getSt(v.id)==='learning').slice(0,10);
+  document.getElementById('reportLearning').innerHTML=lw.length?lw.map(v=>`<div class="wrow">
+    <span class="wword">${v.word}</span><span class="wdef">${v.def}</span>
+    <span class="wtag t${testOf(v.pid)}">T${testOf(v.pid)}</span></div>`).join(''):'<div class="empty">Chưa có từ nào đang học.</div>';
+}
+
+let currentPid='',fcDeck=[],fcIdx=0,fcFlipped=false;
+function renderFC(pid){
+  if(pid) currentPid=pid;
+  const el=document.getElementById('fcArea');
+  const filters=document.getElementById('fcFilters');
+  filters.innerHTML=`<button class="pill ${!currentPid?'active':''}" onclick="setFCPid('')">Tất cả</button>`+
+    PASSAGES.map(p=>`<button class="pill ${currentPid===p.id?'active':''}" onclick="setFCPid('${p.id}')">${p.icon} T${p.test}</button>`).join('');
+  fcDeck=VOCAB.filter(v=>!currentPid||v.pid===currentPid).sort(()=>Math.random()-.5);
+  fcIdx=0;fcFlipped=false;
+  renderFCCard();
+}
+function setFCPid(pid){currentPid=pid;renderFC();}
+function renderFCCard(){
+  const el=document.getElementById('fcArea');
+  if(!fcDeck.length){el.innerHTML='<div class="empty">Không có từ nào.</div>';return;}
+  const v=fcDeck[fcIdx];const st=getSt(v.id);
+  el.innerHTML=`<div class="fc-wrap">
+    <div class="fc-prog">${fcIdx+1} / ${fcDeck.length} · <span class="wtag ${st}" style="font-size:10px">${st}</span></div>
+    <div class="fc-card" onclick="flipFC()">
+      ${fcFlipped?`<div class="fc-def">${v.def}</div><div class="fc-sub">${pOf(v.pid).name}</div>`:
+        `<div class="fc-word">${v.word}</div><div class="fc-hint">Nhấn để xem nghĩa</div>`}
+    </div>
+    ${fcFlipped?`<div class="fc-btns">
+      <button class="fcb red" onclick="markFC('new')"><i class="ti ti-x" aria-hidden="true"></i> Chưa biết</button>
+      <button class="fcb amber" onclick="markFC('learning')"><i class="ti ti-refresh" aria-hidden="true"></i> Đang học</button>
+      <button class="fcb green" onclick="markFC('known')"><i class="ti ti-check" aria-hidden="true"></i> Đã biết</button>
+    </div>`:''}
+    <div class="fc-nav">
+      <button onclick="navFC(-1)" ${fcIdx===0?'disabled':''}>← Trước</button>
+      <button onclick="navFC(1)" ${fcIdx===fcDeck.length-1?'disabled':''}>Tiếp →</button>
+      <button onclick="shuffleFC()"><i class="ti ti-arrows-shuffle" aria-hidden="true"></i></button>
+    </div>
+  </div>`;
+}
+function flipFC(){fcFlipped=!fcFlipped;renderFCCard();}
+function markFC(s){setSt(fcDeck[fcIdx].id,s);navFC(1);}
+function navFC(d){fcIdx=Math.max(0,Math.min(fcDeck.length-1,fcIdx+d));fcFlipped=false;renderFCCard();}
+function shuffleFC(){fcDeck=fcDeck.sort(()=>Math.random()-.5);fcIdx=0;fcFlipped=false;renderFCCard();}
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('s-flashcard').classList.contains('active'))return;
+  if(e.key==='ArrowRight')navFC(1);
+  if(e.key==='ArrowLeft')navFC(-1);
+  if(e.key===' '){e.preventDefault();flipFC();}
+});
+
+let mPid='',mWords=[],mSel={word:null,def:null},mMatched=[];
+function renderMatch(pid){
+  if(pid!==undefined)mPid=pid;
+  const el=document.getElementById('matchArea');
+  const filters=document.getElementById('matchFilters');
+  filters.innerHTML=`<button class="pill ${!mPid?'active':''}" onclick="setMP('')">Tất cả</button>`+
+    PASSAGES.map(p=>`<button class="pill ${mPid===p.id?'active':''}" onclick="setMP('${p.id}')">${p.icon} T${p.test}</button>`).join('');
+  const pool=VOCAB.filter(v=>!mPid||v.pid===mPid).sort(()=>Math.random()-.5).slice(0,8);
+  mWords=pool;mSel={word:null,def:null};mMatched=[];renderMatchCards();
+}
+function setMP(pid){mPid=pid;renderMatch();}
+function renderMatchCards(){
+  const el=document.getElementById('matchArea');
+  if(mMatched.length===mWords.length&&mWords.length>0){
+    el.innerHTML=`<div class="result-box"><div class="result-score" style="color:#0f6e56">🎉</div><div class="result-sub">Ghép đôi hoàn thành! Tất cả ${mWords.length} cặp đúng.</div></div>
+    <div class="btn-row"><button class="sbtn primary" onclick="renderMatch()">Chơi lại ↗</button></div>`;return;
+  }
+  const words=mWords.map(v=>({id:v.id,text:v.word,type:'word'})).sort(()=>Math.random()-.5);
+  const defs=mWords.map(v=>({id:v.id,text:v.def.substring(0,50)+(v.def.length>50?'...':''),type:'def'})).sort(()=>Math.random()-.5);
+  el.innerHTML=`<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">${mMatched.length}/${mWords.length} cặp đã ghép</div>
+    <div class="match-grid">
+      <div class="match-col">${words.map(w=>`<div class="match-item ${mMatched.includes(w.id)?'matched':mSel.word&&mSel.word.id===w.id?'selected':''}" onclick="selectMatch('word',${w.id},'${w.text.replace(/'/g,"\\'")}',this)">${w.text}</div>`).join('')}</div>
+      <div class="match-col">${defs.map(d=>`<div class="match-item ${mMatched.includes(d.id)?'matched':mSel.def&&mSel.def.id===d.id?'selected':''}" onclick="selectMatch('def',${d.id},'${d.text.replace(/'/g,"\\'")}',this)">${d.text}</div>`).join('')}</div>
+    </div>`;
+}
+function selectMatch(type,id,text,el){
+  if(mMatched.includes(id))return;
+  if(mSel[type]&&mSel[type].id===id){mSel[type]=null;renderMatchCards();return;}
+  mSel[type]={id,text};
+  if(mSel.word&&mSel.def){
+    if(mSel.word.id===mSel.def.id){mMatched.push(mSel.word.id);setSt(mSel.word.id,'known');}
+    mSel={word:null,def:null};
+  }
+  renderMatchCards();
+}
+
+let qzState=null,qzPid='';
+function renderQz(pid){
+  if(pid!==undefined)qzPid=pid;
+  const el=document.getElementById('qzArea');
+  const filters=document.getElementById('qzFilters');
+  filters.innerHTML=`<button class="pill ${!qzPid?'active':''}" onclick="setQZP('')">Tất cả</button>`+
+    PASSAGES.map(p=>`<button class="pill ${qzPid===p.id?'active':''}" onclick="setQZP('${p.id}')">${p.icon} T${p.test}</button>`).join('')+
+    `<button class="sbtn primary" onclick="startQz()" style="margin-left:auto">Bắt đầu ↗</button>`;
+  if(!qzState){el.innerHTML='<div class="empty">Chọn bài và nhấn Bắt đầu để làm trắc nghiệm.</div>';return;}
+  const {qs,idx,score,answered,missed}=qzState;
+  if(idx>=qs.length){renderQzResult();return;}
+  const q=qs[idx];const pct=Math.round(idx/qs.length*100);
+  el.innerHTML=`<div class="q-bar"><div class="q-bar-fill" style="width:${pct}%"></div></div>
+    <div class="q-meta">Câu ${idx+1}/${qs.length} · Điểm: ${score}</div>
+    <div class="q-wrap">
+      <div class="q-text">Từ "<strong>${q.word}</strong>" có nghĩa là gì?</div>
+      <div class="q-opts">${q.opts.map((o,i)=>`<button class="qopt ${answered?o.c?'correct':o.sel?'wrong':'':''}" onclick="ansQz(${i})" ${answered?'disabled':''}>${o.text}</button>`).join('')}</div>
+    </div>`;
+}
+function setQZP(pid){qzPid=pid;qzState=null;renderQz();}
+function startQz(){
+  const pool=VOCAB.filter(v=>!qzPid||v.pid===qzPid).sort(()=>Math.random()-.5).slice(0,20);
+  if(pool.length<4){alert('Cần ít nhất 4 từ để làm quiz!');return;}
+  const qs=pool.map(v=>{
+    const wrong=VOCAB.filter(x=>x.id!==v.id).sort(()=>Math.random()-.5).slice(0,3);
+    const opts=[{text:v.def,c:true,sel:false},...wrong.map(x=>({text:x.def,c:false,sel:false}))].sort(()=>Math.random()-.5);
+    return{...v,opts};
+  });
+  qzState={qs,idx:0,score:0,answered:false,missed:[]};renderQz();
+}
+function ansQz(i){
+  if(!qzState||qzState.answered)return;
+  const q=qzState.qs[qzState.idx];
+  q.opts[i].sel=true;
+  qzState.answered=true;
+  if(q.opts[i].c){qzState.score++;setSt(q.id,'known');}
+  else{qzState.missed.push(q);setSt(q.id,'learning');}
+  renderQz();
+  setTimeout(()=>{qzState.idx++;qzState.answered=false;renderQz();},1100);
+}
+function renderQzResult(){
+  const {qs,score,missed}=qzState;
+  const pct=Math.round(score/qs.length*100);
+  const c=pct>=80?'#0f6e56':pct>=50?'#854f0b':'#a32d2d';
+  document.getElementById('qzArea').innerHTML=`<div class="result-box">
+    <div class="result-score" style="color:${c}">${score}/${qs.length}</div>
+    <div class="result-sub">${pct}% đúng · ${pct>=80?'Xuất sắc!':pct>=50?'Cố gắng hơn nhé!':'Tiếp tục ôn luyện!'}</div>
+  </div>
+  ${missed.length?`<div class="missed-sec">Từ cần ôn lại (${missed.length}):</div>
+  <div class="word-table">${missed.map(v=>`<div class="wrow"><span class="wword">${v.word}</span><span class="wdef">${v.def}</span><span class="wtag learning">learning</span></div>`).join('')}</div>`:''}
+  <div class="btn-row" style="margin-top:14px"><button class="sbtn primary" onclick="startQz()">Làm lại ↗</button></div>`;
+}
+
+let tyState=null,tyPid='';
+function renderTy(pid){
+  if(pid!==undefined)tyPid=pid;
+  const el=document.getElementById('tyArea');
+  const filters=document.getElementById('tyFilters');
+  filters.innerHTML=`<button class="pill ${!tyPid?'active':''}" onclick="setTYP('')">Tất cả</button>`+
+    PASSAGES.map(p=>`<button class="pill ${tyPid===p.id?'active':''}" onclick="setTYP('${p.id}')">${p.icon} T${p.test}</button>`).join('')+
+    `<button class="sbtn primary" onclick="startTy()" style="margin-left:auto">Bắt đầu ↗</button>`;
+  if(!tyState){el.innerHTML='<div class="empty">Chọn bài và nhấn Bắt đầu để điền từ.</div>';return;}
+  const {qs,idx,score}=tyState;
+  if(idx>=qs.length){renderTyResult();return;}
+  const q=qs[idx];
+  el.innerHTML=`<div class="q-meta">Câu ${idx+1}/${qs.length} · Điểm: ${score}</div>
+    <div class="type-card">
+      <div class="type-def">Nghĩa: <em>${q.def}</em></div>
+      <input class="type-input" id="tyInput" placeholder="Gõ từ tiếng Anh..." autocomplete="off" onkeydown="if(event.key==='Enter')checkTy()">
+      <div class="type-hint">Gợi ý: ${q.word[0]}${'_'.repeat(q.word.length-1)}</div>
+    </div>
+    <div class="btn-row">
+      <button class="sbtn primary" onclick="checkTy()">Kiểm tra ↗</button>
+      <button class="sbtn" onclick="skipTy()">Bỏ qua</button>
+    </div>`;
+  setTimeout(()=>{const inp=document.getElementById('tyInput');if(inp)inp.focus();},50);
+}
+function setTYP(pid){tyPid=pid;tyState=null;renderTy();}
+function startTy(){
+  const pool=VOCAB.filter(v=>!tyPid||v.pid===tyPid).sort(()=>Math.random()-.5).slice(0,15);
+  tyState={qs:pool,idx:0,score:0,missed:[]};renderTy();
+}
+function checkTy(){
+  if(!tyState)return;
+  const inp=document.getElementById('tyInput');if(!inp)return;
+  const val=inp.value.trim().toLowerCase();
+  const q=tyState.qs[tyState.idx];
+  const correct=val===q.word.toLowerCase();
+  inp.className='type-input '+(correct?'correct':'wrong');
+  inp.disabled=true;
+  if(correct){tyState.score++;setSt(q.id,'known');}
+  else{tyState.missed.push(q);setSt(q.id,'learning');inp.value=q.word;}
+  setTimeout(()=>{tyState.idx++;renderTy();},1200);
+}
+function skipTy(){if(!tyState)return;tyState.missed.push(tyState.qs[tyState.idx]);tyState.idx++;renderTy();}
+function renderTyResult(){
+  const {qs,score,missed}=tyState;
+  const pct=Math.round(score/qs.length*100);
+  const c=pct>=80?'#0f6e56':pct>=50?'#854f0b':'#a32d2d';
+  document.getElementById('tyArea').innerHTML=`<div class="result-box">
+    <div class="result-score" style="color:${c}">${score}/${qs.length}</div>
+    <div class="result-sub">${pct}% đúng</div>
+  </div>
+  ${missed.length?`<div class="missed-sec">Từ cần ôn lại:</div><div class="word-table">${missed.map(v=>`<div class="wrow"><span class="wword">${v.word}</span><span class="wdef">${v.def}</span></div>`).join('')}</div>`:''}
+  <div class="btn-row" style="margin-top:14px"><button class="sbtn primary" onclick="startTy()">Làm lại ↗</button></div>`;
+}
+
+let exState=null;
+function renderEx(){
+  const el=document.getElementById('exArea');
+  const filters=document.getElementById('exFilters');
+  filters.innerHTML=`<button class="sbtn primary" onclick="startEx()">Bắt đầu bài kiểm tra (40 câu) ↗</button>
+    <button class="sbtn" onclick="startEx(20)">Kiểm tra nhanh (20 câu)</button>`;
+  if(!exState){el.innerHTML='<div class="empty">Nhấn Bắt đầu để làm bài kiểm tra tổng hợp.</div>';return;}
+  const {qs,idx,score,answered}=exState;
+  if(idx>=qs.length){renderExResult();return;}
+  const q=qs[idx];const pct=Math.round(idx/qs.length*100);
+  el.innerHTML=`<div class="q-bar"><div class="q-bar-fill" style="width:${pct}%"></div></div>
+    <div class="q-meta">Câu ${idx+1}/${qs.length} · Điểm: ${score}</div>
+    <div class="q-wrap">
+      <div class="q-text">Từ "<strong>${q.word}</strong>" có nghĩa là gì?</div>
+      <div class="q-opts">${q.opts.map((o,i)=>`<button class="qopt ${answered?o.c?'correct':o.sel?'wrong':'':''}" onclick="ansEx(${i})" ${answered?'disabled':''}>${o.text}</button>`).join('')}</div>
+    </div>`;
+}
+function startEx(n=40){
+  const pool=VOCAB.sort(()=>Math.random()-.5).slice(0,Math.min(n,VOCAB.length));
+  const qs=pool.map(v=>{
+    const wrong=VOCAB.filter(x=>x.id!==v.id).sort(()=>Math.random()-.5).slice(0,3);
+    const opts=[{text:v.def,c:true,sel:false},...wrong.map(x=>({text:x.def,c:false,sel:false}))].sort(()=>Math.random()-.5);
+    return{...v,opts};
+  });
+  exState={qs,idx:0,score:0,answered:false,missed:[]};renderEx();
+}
+function ansEx(i){
+  if(!exState||exState.answered)return;
+  const q=exState.qs[exState.idx];
+  q.opts[i].sel=true;exState.answered=true;
+  if(q.opts[i].c){exState.score++;setSt(q.id,'known');}
+  else{exState.missed.push(q);setSt(q.id,'learning');}
+  renderEx();
+  setTimeout(()=>{exState.idx++;exState.answered=false;renderEx();},1100);
+}
+function renderExResult(){
+  const {qs,score,missed}=exState;
+  const pct=Math.round(score/qs.length*100);
+  const band=pct>=90?'9.0':pct>=80?'8.0':pct>=70?'7.0':pct>=60?'6.5':'6.0';
+  const c=pct>=70?'#0f6e56':pct>=50?'#854f0b':'#a32d2d';
+  document.getElementById('exArea').innerHTML=`<div class="result-box">
+    <div class="result-score" style="color:${c}">${score}/${qs.length}</div>
+    <div class="result-sub">${pct}% · Ước tính IELTS Reading: Band ${band}</div>
+  </div>
+  ${missed.length?`<div class="missed-sec">Từ sai (${missed.length}):</div><div class="word-table">${missed.slice(0,15).map(v=>`<div class="wrow"><span class="wword">${v.word}</span><span class="wdef">${v.def}</span></div>`).join('')}</div>`:''}
+  <div class="btn-row" style="margin-top:14px"><button class="sbtn primary" onclick="startEx()">Làm lại ↗</button></div>`;
+}
+
+load();updateSidebar();renderHome();
+</script>
